@@ -1,0 +1,62 @@
+
+
+import curses
+
+def manage_press(stdscr, number, press_count, opposing_press_count, negator):
+    if opposing_press_count:
+        stdscr.addstr("flip\n")
+        opposing_press_count = 0
+        press_count = 0
+    else:
+        increment =  2 ** press_count
+        number += increment * negator
+        opposing_press_count = 0
+        press_count += 1
+        # Format the number with commas
+        formatted_number = f"{number:,}"
+        stdscr.addstr(f"{formatted_number}\n")  # Print the formatted number here
+    return number, press_count, opposing_press_count
+
+def main(stdscr):
+    # Disable automatic screen clearing
+    curses.cbreak()  # Enable cbreak mode
+    stdscr.keypad(True)  # Enable keypad mode
+
+        # Enable scrolling
+    stdscr.scrollok(True)
+    stdscr.idlok(True)
+
+    # Initial number
+    number = 1
+    # Counters for consecutive presses
+    up_press_count = 0
+    down_press_count = 0
+
+    stdscr.addstr("Press 'q' to quit.\n")
+    stdscr.addstr("Current number:\n")
+    stdscr.addstr(f"{number}\n")
+
+    while True:
+        key = stdscr.getch()  # Get a single character input
+
+        if key == curses.KEY_UP:
+            number, up_press_count, down_press_count = manage_press(stdscr, number, up_press_count, down_press_count, 1)
+        elif key == curses.KEY_DOWN:
+            number, down_press_count, up_press_count = manage_press(stdscr, number, down_press_count, up_press_count, -1)
+        elif key == ord('q'):
+            break
+        else:
+            # Reset both counters if any other key is pressed
+            down_press_count = 1
+            #access the flip function of manage_press
+            manage_press(stdscr, number, down_press_count, up_press_count, 1)
+            up_press_count = 0
+            down_press_count = 0
+
+        
+      
+
+# Run the curses application
+curses.wrapper(main)
+
+
